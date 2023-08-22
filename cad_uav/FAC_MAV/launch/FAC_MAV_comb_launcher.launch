@@ -1,0 +1,128 @@
+<launch>
+
+ 
+    <include file="$(find setting_tf2)/launch/tf2_setting.launch">
+    </include>
+<?ignore    <!-- Dynamixel Workbench Controller -->
+    <include file="$(find dynamixel_workbench_controllers)/launch/position_control.launch">
+        <arg name="device_name"        		default="/dev/ttyU2D2"/>
+        <arg name="baud_rate"   		default="4500000"/>
+	<arg name="profile_velocity"		default="0"/>
+	<arg name="profile_acceleration"	default="0"/>
+	<arg name="position_p_gain"		default="1500"/>
+	<arg name="position_i_gain"		default="300"/>
+	<arg name="position_d_gain"		default="100"/>
+    </include> ?>
+<?ignore    <!-- ros_mscl -->
+    <include file="$(find microstrain_inertial_driver)/launch/microstrain.launch">
+	  <arg name="params_file"            default = "" />
+        <!-- <arg name="name"                   default = "gx5" /> -->
+	  <arg name="port"                   default = "/dev/ttyIMU" />
+	  <arg name="aux_port"               default = "/dev/ttyACM1" />
+	  <arg name="baudrate"               default = "115200" />
+	  <arg name="debug"                  default = "false" />
+	  <!-- <arg name="diagnostics"            default = "false" /> -->
+	  <arg name="imu_frame_id"           default = "sensor" />
+	  <arg name="imu_data_rate"          default = "150" />
+	  <arg name="filter_data_rate"       default = "0" />
+	  <arg name="gnss1_frame_id"         default = "gnss1_wgs84_ned" />
+	  <arg name="gnss2_frame_id"         default = "gnss2_wgs84_ned" />
+	  <arg name="filter_frame_id"        default = "sensor_wgs84_ned" />
+	  <arg name="filter_child_frame_id"  default = "sensor" />
+	  <arg name="nmea_frame_id"          default = "nmea" />
+	  <arg name="use_enu_frame"          default = "false" />
+    </include> ?>
+    <!-- t265 -->
+    <include file="$(find realsense2_camera)/launch/rs_t265.launch">
+    </include>
+    <!-- rosserial_arduino -->
+    <node pkg="rosserial_arduino" type="serial_node.py" name="ros_arduino_PWMs" >
+	<param name="port" value="/dev/ttyACM0"/>
+        <param name="baud" value="57600"/>
+    </node>
+    <node pkg="pwm_pca9685" type="pca9685_node" name="pwm_generator"/>
+
+<!-- FAC_MAV_Controller -->
+	<!--integration limits-->
+	<param name="attitude_integ_limit"	value="10.0"/>
+	<param name="altitude_integ_limit"	value="100.0"/>
+	<param name="position_integ_limit"	value="10.0"/>
+
+	<!--Center of mass-->
+	<param name="x_center_of_mass"		value="-0.005"/> <!-- -0.127 -->
+	<param name="y_center_of_mass"		value="0.20"/> <!-- 0.120 -->
+	<param name="z_center_of_mass"		value="-0.070"/><!-- -0.040-->	
+
+	<!--Conventional flight mode-->
+    		<!--Conventional Mode attitude_r gains-->
+    		<param name="conv_attitude_r_P_gain"	value="20"/> <!-- 7 -->
+    		<param name="conv_attitude_r_I_gain"	value="1.0"/> <!-- 2.0 -->
+    		<param name="conv_attitude_r_D_gain"	value="4.0"/> <!-- 2.0 -->
+		
+
+		<!--Conventional Mode attitude_p gains-->
+    		<param name="conv_attitude_p_P_gain"	value="7.5"/>
+    		<param name="conv_attitude_p_I_gain"	value="0.3"/>
+    		<param name="conv_attitude_p_D_gain"	value="1.5"/>
+
+		<!--Conventional Mode attitude_y gain-->
+		<param name="conv_attitude_y_P_gain"	value="6.0"/> <!-- 2.0 -->
+		<!--<param name="conv_attitude_y_I_gain"	value="0"/>-->
+		<param name="conv_attitude_y_D_gain"	value="0.5"/> <!-- 0.1 -->
+
+		<!--Conventional Mode Altitude gains-->
+		<param name="conv_altitude_P_gain"	value="12.0"/> <!-- 12 -->
+		<param name="conv_altitude_I_gain"	value="5.0"/> <!-- 5 -->
+		<param name="conv_altitude_D_gain"	value="6.0"/> <!-- 7.0 -->
+
+		<!--Conventional Mode Velocity gains-->
+		<param name="conv_velocity_P_gain"	value="1.0"/> <!-- 1.2 -->	
+		<param name="conv_velocity_I_gain"	value="0.1"/> <!-- 0.1 -->	
+		<param name="conv_velocity_D_gain"	value="0.5"/> <!-- 0.7 -->
+
+		<!--Conventional Mode Horizontal Position gains-->
+		<param name="conv_position_P_gain"	value="1.2"/> <!-- 1.5 -->	
+		<param name="conv_position_I_gain"	value="0.1"/> <!-- 0.1 -->	
+		<param name="conv_position_D_gain"	value="0.5"/> <!-- 0.5 -->
+	
+	<!--Tilt flight mode-->
+		<!--Tilt Mode attitude_r gains-->
+		<param name="tilt_attitude_r_P_gain"	value="35"/>	<!-- 20.0 -->
+		<param name="tilt_attitude_r_I_gain"	value="1.1"/>   <!-- 1.1 -->
+		<param name="tilt_attitude_r_D_gain"	value="4.0"/>  <!-- 4.0 -->
+
+		<!--Tilt Mode attitude_p gains-->
+                <param name="tilt_attitude_p_P_gain"      value="8.5"/> <!-- 8.5 -->
+                <param name="tilt_attitude_p_I_gain"      value="0.4"/> <!-- 0.4 -->
+                <param name="tilt_attitude_p_D_gain"      value="2.0"/> <!-- 2.0 -->
+
+
+		<!--Tilt Mode attitude_y gains-->
+		<param name="tilt_attitude_y_P_gain"	value="12.0"/> <!-- 9.0 -->
+		<!--<param name="tilt_attitude_y_I_gain"	value="0"/>-->
+		<param name="tilt_attitude_y_D_gain"	value="0.5"/> <!-- 0.5-->
+
+		<!--Tilt Mode Altitude gains-->
+		<param name="tilt_altitude_P_gain"	value="12.0"/>
+		<param name="tilt_altitude_I_gain"	value="5.0"/>
+		<param name="tilt_altitude_D_gain"	value="6.0"/>
+
+		<!--Tilt Mode Velocity gains-->
+		<param name="tilt_velocity_P_gain"	value="0.5"/> <!-- 1.0 -->	
+		<param name="tilt_velocity_I_gain"	value="0.1"/> <!-- 1.0 -->	
+		<param name="tilt_velocity_D_gain"	value="0.1"/> <!-- 0.2 -->
+
+		<!--Tilt Mode Position gains-->
+		<param name="tilt_position_P_gain"	value="2.3"/> <!-- 2.0 -->	
+		<param name="tilt_position_I_gain"	value="0.1"/> <!-- 0.3 -->	
+		<param name="tilt_position_D_gain"	value="0.5"/> <!-- 0.5 -->	
+
+	
+
+    <node name="fac_mav_main"  pkg="FAC_MAV" type="fac_mav_main"  output="screen"/>
+
+    <node pkg="logging_test" name="logging_test_node" type="logging_test"/> -->
+
+    <!-- Rosbag -->
+    <node pkg="rosbag" type="record" name="record" output="screen" args="-o /home/mrl_latte2/catkin_ws/src/FAC_MAV/bag/ /simple_logging_data /" /><!-- /angle /desired_angle /Forces /t265_pos /desired_altitude"/> -->
+</launch>
