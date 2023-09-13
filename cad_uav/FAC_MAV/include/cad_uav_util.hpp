@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdio>
 #include <chrono>
+#include <vector>
 
 #include <sensor_msgs/JointState.h>
 #include <trajectory_msgs/JointTrajectory.h>
@@ -34,6 +35,8 @@
 #include "FAC_MAV/FAC_HoverService.h" //ASDF
 #include "nav_msgs/Odometry.h"
 
+#include <string>
+
 
 double freq=200;//controller loop frequency
 double pwm_freq=417.3;//pwm signal frequency
@@ -45,6 +48,9 @@ int16_t loop_time;
 std_msgs::Int16MultiArray PWMs_cmd;
 std_msgs::Int32MultiArray PWMs_val;
 std_msgs::Float32MultiArray Force;
+std_msgs::Float32 force_alpha;
+std_msgs::Float32MultiArray kill_tilt_switch;
+std_msgs::String kill_tilt_switch_str;
 
 sensor_msgs::JointState rac_servo_value;
 sensor_msgs::Imu imu;
@@ -401,7 +407,9 @@ ros::Publisher External_force_data;
 ros::Publisher reference_desired_pos_error;
 ros::Publisher reference_pos;
 
-
+ros::Publisher force_alpha_pub; //for force distributor
+ros::Publisher kill_tilt_switch_pub; // for sub module
+ros::Publisher kill_tilt_switch_str_pub;
 
 
 //Control Matrix---------------------------------------
@@ -519,8 +527,26 @@ double dhat_Y = 0;
 double X_tilde_r = 0;
 double Y_tilde_r = 0;
 
+
+static char sSTX() { return static_cast<char>(0x02);}
+static char sETX() { return static_cast<char>(0x03);}
+static char sEOT() { return static_cast<char>(0x04);}
+static char sENQ() { return static_cast<char>(0x05);}
+static char sACK() { return static_cast<char>(0x06);}
+static char sNAK() { return static_cast<char>(0x15);}
+static char sCR() { return static_cast<char>(13);}
+static char sLF() { return static_cast<char>(10);}
+// std::to_string(sSTX())
+// std::to_string(sETX())
+std::string buf1 = "abc";
+std::string buf2 = "def";
 // Function Define ------------------------------ //
 
+std::string data_2_string(){
+        std::string buffer = "<" +std::to_string(111.11)+"PE"+std::to_string(222.22)+"TE"+std::to_string(333.33)+"KE"+std::to_string(444.44)+"XE"+std::to_string(555.55)+"YE"+std::to_string(666.66)+"ZE"
+        +std::to_string(kill_mode)+">";
+        return buffer;
+}
 
 void shape_selector(int num){
 	// combination rule 

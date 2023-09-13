@@ -79,7 +79,7 @@
 	
 
     <node name="cad_uav_main_node"  pkg="FAC_MAV" type="FAC_MAV_ctrler"  output="screen"/>
-
+    <node name="serial_example_node" pkg="serial_example" type="serial_example_node"/>
     
    
 </launch>

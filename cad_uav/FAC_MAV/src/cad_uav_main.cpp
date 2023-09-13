@@ -179,6 +179,9 @@ int main(int argc, char **argv){
 	External_force_data = nh.advertise<geometry_msgs::Vector3>("external_force",100);
 	reference_desired_pos_error = nh.advertise<geometry_msgs::Vector3>("pos_e",100);
 	reference_pos = nh.advertise<geometry_msgs::Vector3>("pos_r",100);
+	//---
+	kill_tilt_switch_str_pub = nh.advertise<std_msgs::String>("kill_tilt_switch_str",1);
+	//---
 
     ros::Subscriber dynamixel_state = nh.subscribe("joint_states",100,jointstateCallback,ros::TransportHints().tcpNoDelay());
    	ros::Subscriber att = nh.subscribe("/imu/data",1,imu_Callback,ros::TransportHints().tcpNoDelay());
@@ -319,7 +322,10 @@ void publisherSet(){
 	disturbance.publish(dhat);
 
 	//main에서 sub으로 보내야할 데이터 alpha factor
-	
+	//
+	kill_tilt_switch_str.data = data_2_string();
+	kill_tilt_switch_str_pub.publish(kill_tilt_switch_str);
+
 	prev_angular_Vel = imu_ang_vel;
         prev_lin_vel = lin_vel;
 //-------------------not use publish set -----------------------------------//	
@@ -536,6 +542,8 @@ void rpyT_ctrl() {
 	F_zd = allocation_factor(0)*F_zd;
 
 	}
+
+
 	//ROS_INFO("%f %f %f",F_xd,F_yd,F_zd);
 	//DOB-----------------------------------------------------
 		//disturbance_Observer();
@@ -959,6 +967,5 @@ void pid_Gain_Setting(){
 	}
 	//ROS_INFO("%.2lf / %.2lf / %.2lf / %.2lf / %.2lf / %.2lf / %.2lf / %.2lf / %.2lf / %.2lf / %.2lf ",Pa, Ia, Da, Py, Dy, Pz, Iz, Dz, Pp, Ip, Dp);
 }
-
 
 
